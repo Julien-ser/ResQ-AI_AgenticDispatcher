@@ -54,9 +54,9 @@ flowchart TD
 ### Agentic Pipeline (A2A)
 ```mermaid
 flowchart LR
-    Incident[Incident Payload] --> DA[DispatchAgent (Gemini → fallback relief_tools)]
-    DA --> RA[ResourceAgent (Gemini → relief_tools)]
-    RA --> SA[SummaryAgent (Gemini-lite → formatter)]
+    Incident[Incident Payload] --> DA[DispatchAgent]
+    DA --> RA[ResourceAgent]
+    RA --> SA[SummaryAgent]
     SA --> DCA[DecisionAgent]
     DCA --> Trace[Trace + Metrics]
     Trace --> UI[ESP32 + Web Interfaces]
