@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ResQ-AI Incident Reporter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0d1117;
+      color: #f0f6fc;
+      margin: 0;
+      padding: 2rem;
+    }
+    h1 {
+      margin-bottom: 0.5rem;
+    }
+    .card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 1.5rem;
+      max-width: 520px;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: #8b949e;
+    }
+    input, select, textarea {
+      width: 100%;
+      margin-top: 0.35rem;
+      padding: 0.6rem;
+      border-radius: 6px;
+      border: 1px solid #30363d;
+      background: #0d1117;
+      color: #f0f6fc;
+    }
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+    button {
+      margin-top: 1.5rem;
+      width: 100%;
+      padding: 0.85rem;
+      border: none;
+      border-radius: 6px;
+      background: #238636;
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:disabled {
+      background: #444c56;
+      cursor: not-allowed;
+    }
+    .status {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      display: none;
+    }
+    .status.success {
+      background: rgba(35, 134, 54, 0.2);
+      border: 1px solid #238636;
+    }
+    .status.error {
+      background: rgba(248, 81, 73, 0.2);
+      border: 1px solid #f85149;
+    }
+    .row {
+      display: flex;
+      gap: 0.75rem;
+    }
+    .row > div {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+  <h1>ResQ-AI Incident Reporter</h1>
+  <p>Submit a test incident to the FastAPI backend (defaults to localhost).</p>
+
+  <div class="card">
+    <label for="serverUrl">Server URL</label>
+    <input id="serverUrl" type="text" value="http://localhost:8000">
+
+    <div class="row">
+      <div>
+        <label for="incidentType">Incident Type</label>
+        <select id="incidentType">
+          <option value="Fire" selected>Fire</option>
+          <option value="Medical">Medical</option>
+          <option value="Rescue">Rescue</option>
+          <option value="Security">Security</option>
+          <option value="Hazmat">Hazmat</option>
+        </select>
+      </div>
+      <div>
+        <label for="urgency">Urgency</label>
+        <select id="urgency">
+          <option value="CRITICAL" selected>CRITICAL</option>
+          <option value="HIGH">HIGH</option>
+          <option value="MEDIUM">MEDIUM</option>
+          <option value="LOW">LOW</option>
+        </select>
+      </div>
+    </div>
+
+    <label for="location">Location / Sector</label>
+    <input id="location" type="text" placeholder="Sector 7">
+
+    <label for="details">Details (optional)</label>
+    <textarea id="details" placeholder="Transformer fire, heavy smoke..."></textarea>
+
+    <label for="session">Session ID (optional)</label>
+    <input id="session" type="text" placeholder="auto-generated if blank">
+
+    <button id="submitBtn">Submit Incident</button>
+    <div id="status" class="status"></div>
+  </div>
+
+  <script>
+    const submitBtn = document.getElementById('submitBtn');
+    const statusBox = document.getElementById('status');
+
+    function showStatus(message, isError = false) {
+      statusBox.style.display = 'block';
+      statusBox.textContent = message;
+      statusBox.className = 'status ' + (isError ? 'error' : 'success');
+    }
+
+    submitBtn.addEventListener('click', async () => {
+      submitBtn.disabled = true;
+      showStatus('Submitting incident...', false);
+
+      const payload = {
+        type: document.getElementById('incidentType').value || 'Unknown',
+        location: document.getElementById('location').value || 'Unknown',
+        urgency: document.getElementById('urgency').value || 'CRITICAL'
+      };
+      const details = document.getElementById('details').value;
+      if (details.trim().length > 0) payload.details = details.trim();
+
+      const sessionId = document.getElementById('session').value.trim();
+      const baseUrl = document.getElementById('serverUrl').value.trim().replace(/\/$/, '');
+
+      try {
+        const response = await fetch(`${baseUrl}/incident${sessionId ? `?session_id=${encodeURIComponent(sessionId)}` : ''}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          const text = await response.text();
+          throw new Error(text || `HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        showStatus(`Incident submitted. ID: ${data?.content?.incident?.id || 'unknown'}`, false);
+      } catch (err) {
+        console.error(err);
+        showStatus(`Error: ${err.message}`, true);
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,22 @@
+# Python cache / virtualenv
+__pycache__/
+.venv/
+venv/
+*.pyc
+
+# FastAPI / backend env files
+.env
+backend/.env
+*/.env
+
+# Arduino / secrets
+hardware_client/dispatch_ui/secrets.h
+
+# VSCode / editor junk
+.vscode/
+.idea/
+
+# OS files
+Thumbs.db
+.DS_Store
+
