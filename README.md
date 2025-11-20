@@ -30,6 +30,9 @@ ResQ-AI automates incident triage, resource recommendation, and concise alerting
 
 ```mermaid
 flowchart TD
+    classDef ui fill:#0d1117,stroke:#8b949e,color:#f0f6fc;
+    classDef edge fill:#001f3f,stroke:#0aa0f6,color:#f0f6fc;
+
     subgraph Interfaces
         WF[Web Incident Console]:::ui -->|POST /incident| API
         CLI[CLI / Automation]:::ui -->|POST /incident| API
@@ -37,29 +40,26 @@ flowchart TD
         ESP -->|POST /incident/decision| API
     end
 
-    subgraph Backend (FastAPI + Relief Tools)
+    subgraph Backend["Backend (FastAPI + Relief Tools)"]
         API[REST API + WebSocket] --> ORCH[A2A Orchestrator]
         ORCH --> DA[DispatchAgent]
         ORCH --> RA[ResourceAgent]
         ORCH --> SA[SummaryAgent]
         ORCH --> DCA[DecisionAgent]
-        SA --> RT[Relief Tools<br/>(fallback summaries/resources)]
+        SA --> RT[Relief Tools fallback]
         ORCH --> STATE[Sessions, Memory, Metrics]
     end
-
-    classDef ui fill:#0d1117,stroke:#8b949e,color:#f0f6fc;
-    classDef edge fill:#001f3f,stroke:#0aa0f6,color:#f0f6fc;
 ```
 
 ### Agentic Pipeline (A2A)
 ```mermaid
 flowchart LR
-    Incident[Incident Payload] --> DA
-    DA[DispatchAgent<br/>Gemini → fallback plan_relief_response] --> RA[ResourceAgent]
-    RA --> SA[SummaryAgent<br/>Gemini-lite or relief formatter]
+    Incident[Incident Payload] --> DA[DispatchAgent (Gemini → fallback relief_tools)]
+    DA --> RA[ResourceAgent (Gemini → relief_tools)]
+    RA --> SA[SummaryAgent (Gemini-lite → formatter)]
     SA --> DCA[DecisionAgent]
     DCA --> Trace[Trace + Metrics]
-    Trace --> UI[ESP32 Display + Web Console]
+    Trace --> UI[ESP32 + Web Interfaces]
 ```
 
 ---

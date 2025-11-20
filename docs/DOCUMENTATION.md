@@ -73,7 +73,7 @@ flowchart TD
     ORCH --> RA[ResourceAgent]
     ORCH --> SA[SummaryAgent]
     ORCH --> DCA[DecisionAgent]
-    SA --> Relief[Relief Tools<br/>Deterministic fallback]
+    SA --> Relief[Relief Tools fallback]
     DCA --> Logs[Trace + Metrics]
     Logs --> ESP
     Logs --> Web
