@@ -1,7 +1,7 @@
 
 # Dispatch UI Agentic Capstone
 
-![System Architecture](docs/architecture.png)
+![Web Console](frontend.png)
 
 ## Project Overview
 
@@ -34,20 +34,20 @@ flowchart TD
     classDef edge fill:#001f3f,stroke:#0aa0f6,color:#f0f6fc;
 
     subgraph Interfaces
-        WF[Web Incident Console]:::ui -->|POST /incident| API
-        CLI[CLI / Automation]:::ui -->|POST /incident| API
-        ESP[ESP32 Dispatch Terminal]:::edge -->|GET /incident/latest| API
-        ESP -->|POST /incident/decision| API
+        WF[Web Incident Console]:::ui -->|POST incident| API
+        CLI[CLI / Automation]:::ui -->|POST incident| API
+        ESP[ESP32 Dispatch Terminal]:::edge -->|GET latest| API
+        ESP -->|POST decision| API
     end
 
-    subgraph Backend["Backend (FastAPI + Relief Tools)"]
+    subgraph Backend["FastAPI + Relief Tools"]
         API[REST API + WebSocket] --> ORCH[A2A Orchestrator]
         ORCH --> DA[DispatchAgent]
         ORCH --> RA[ResourceAgent]
         ORCH --> SA[SummaryAgent]
         ORCH --> DCA[DecisionAgent]
-        SA --> RT[Relief Tools fallback]
-        ORCH --> STATE[Sessions, Memory, Metrics]
+        SA --> RT[Relief Tools Fallback]
+        ORCH --> STATE[Sessions / Memory / Metrics]
     end
 ```
 
